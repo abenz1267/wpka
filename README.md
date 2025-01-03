@@ -14,4 +14,4 @@ Make sure to reload dbus `sudo systemctl reload dbus` after installation.
 
 ### Autostart
 
-Autostart `wpka <your input cmd>` however you want. F.e. `wpka walker -y` or `wpka fuzzel --dmenu --password`.
+Autostart `sudo wpka <your input cmd>` however you want. F.e. `sudo wpka walker -y` or `sudo wpka fuzzel --dmenu --password`.
