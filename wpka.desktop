@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=WPKA
+Comment=General purpose wayland polkit agent.
+Exec=/usr/bin/wpka <provide input command here>
+Terminal=false
+Type=Application
+Categories=System;
+NoDisplay=true
