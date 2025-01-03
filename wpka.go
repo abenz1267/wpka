@@ -10,7 +10,6 @@ import (
 	"os/user"
 	"strconv"
 	"strings"
-	"syscall"
 
 	"github.com/godbus/dbus/v5"
 	"github.com/msteinert/pam"
@@ -142,18 +141,6 @@ func getCurrentSession() (string, error) {
 }
 
 func main() {
-	os.Remove("/tmp/wpka.log")
-
-	logFile, err := os.OpenFile("/tmp/wpka.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		fmt.Printf("Failed to open log file: %v\n", err)
-		os.Exit(1)
-	}
-	defer logFile.Close()
-
-	log.SetOutput(logFile)
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-
 	conn, err := dbus.SystemBus()
 	if err != nil {
 		log.Fatalf("Failed to connect to system bus: %v", err)
@@ -214,7 +201,6 @@ func main() {
 
 	log.Println("Successfully registered authentication agent")
 	fmt.Println("PolicyKit agent started. Waiting for authentication requests...")
-	fmt.Println("Logs are being written to /tmp/wpka.log")
 
 	select {}
 }
@@ -262,7 +248,7 @@ func execute() string {
 		os.Exit(1)
 	}
 
-	gid, err := strconv.ParseUint(currentUser.Gid, 10, 32)
+	_, err = strconv.ParseUint(currentUser.Gid, 10, 32)
 	if err != nil {
 		fmt.Printf("Error parsing GID: %v\n", err)
 		os.Exit(1)
@@ -306,13 +292,13 @@ func execute() string {
 
 	cmd.Env = envList
 
-	// Set the user and group
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Credential: &syscall.Credential{
-			Uid: uint32(uid),
-			Gid: uint32(gid),
-		},
-	}
+	// // Set the user and group
+	// cmd.SysProcAttr = &syscall.SysProcAttr{
+	// 	Credential: &syscall.Credential{
+	// 		Uid: uint32(uid),
+	// 		Gid: uint32(gid),
+	// 	},
+	// }
 
 	// Run the command
 	out, err := cmd.CombinedOutput()
@@ -343,7 +329,7 @@ func PAMAuth(serviceName, userName, passwd string) error {
 		case pam.PromptEchoOn, pam.ErrorMsg, pam.TextInfo:
 			return "", nil
 		}
-		return "", errors.New("Unrecognized PAM message style")
+		return "", errors.New("unrecognized PAM message style")
 	})
 	if err != nil {
 		return err
